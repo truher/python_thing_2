@@ -1,0 +1,33 @@
+name: Python thing 2
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          architecture: "x64"
+
+      - name: Install tools
+        run: python -m pip install --upgrade pip pytest pytest-cov
+
+        # this requirements file pulls from test.pypi.org.
+      - name: Install requirements
+        run: pip install -r requirements1.txt
+
+      - name: Test with pytest
+        run: pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+
+      - name: Upload pytest test results 
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results
+          path: junit/test-results.xml
+        if: ${{ always() }}
