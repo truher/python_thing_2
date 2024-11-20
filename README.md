@@ -3,23 +3,25 @@
 This depends on python_thing, to figure out how to use `test.pypi.org`
 for dependencies.
 
-I made a venv in vscode
+The goal is to depend on "nightly" which means we don't need a version bound
+at all, we just take the latest.  See requirements1.txt.
+
+First, I made a venv in vscode:
 
 ```
 > Python: Create Environment...)
 ```
 
-Then I installed the dependency, using the requirements file:
+Then I installed the dependency, using the requirements file, and pip correctly pulled the latest version:
 
 ```
 (.venv) joel@joel:~/FRC/TRUHER/python_thing_2$ python3 -m pip install -r requirements1.txt 
 Looking in indexes: https://test.pypi.org/simple/, https://pypi.org/simple
-Collecting example_package_truher==0.0.dev20241118 (from -r requirements1.txt (line 3))
-  Downloading https://test-files.pythonhosted.org/packages/94/79/738a893f5295400ae27e45ea2dfa4c6b79dcd5b7a764c454f7db9a985ebd/example_package_truher-0.0.dev20241118-py3-none-any.whl.metadata (3.8 kB)
-Downloading https://test-files.pythonhosted.org/packages/94/79/738a893f5295400ae27e45ea2dfa4c6b79dcd5b7a764c454f7db9a985ebd/example_package_truher-0.0.dev20241118-py3-none-any.whl (4.2 kB)
+Collecting example_package_truher (from -r requirements1.txt (line 4))
+  Downloading https://test-files.pythonhosted.org/packages/0c/7f/b03f6db893ae8817c189c8adecd37e23c7fa016b0231328cd5500a4605e6/example_package_truher-2024.11.20.15.36-py3-none-any.whl.metadata (3.8 kB)
+Downloading https://test-files.pythonhosted.org/packages/0c/7f/b03f6db893ae8817c189c8adecd37e23c7fa016b0231328cd5500a4605e6/example_package_truher-2024.11.20.15.36-py3-none-any.whl (4.2 kB)
 Installing collected packages: example_package_truher
-Successfully installed example_package_truher-0.0.dev20241118
-(.venv) joel@joel:~/FRC/TRUHER/python_thing_2$ 
+Successfully installed example_package_truher-2024.11.20.15.36
 ```
 
 then i ran the thing, using the little triangle on the `runme.py` tab.
@@ -30,46 +32,16 @@ then i ran the thing, using the little triangle on the `runme.py` tab.
 ```
 so it works!
 
-To run the tests, I made a tests directory, put a test in it, and it couldn't discover
-the test.  you have to help it to understand the venv by setting the `pytestPath`
-to `.venv/bin/pytest` instead of simply `pytest`.  so now it works.
+To run the tests, you have to specify the pytest path by setting the `pytestPath`
+to `.venv/bin/pytest`.
 
-# version bounds
+# Version bounds
 
-to actually use "nightly" we want to specify a looser bound than `example_package_truher==0.0.dev20241118`
+To use a version other  than "nightly," you can uninstall the current version:
 
-so first uninstall the one we used before
 
 ```
-(.venv) joel@joel:~/FRC/TRUHER/python_thing_2$ python3 -m pip uninstall example_package_truher
-Found existing installation: example_package_truher 0.0.dev20241118
-Uninstalling example_package_truher-0.0.dev20241118:
-  Would remove:
-    /home/joel/FRC/TRUHER/python_thing_2/.venv/lib/python3.10/site-packages/example_package_truher-0.0.dev20241118.dist-info/*
-    /home/joel/FRC/TRUHER/python_thing_2/.venv/lib/python3.10/site-packages/example_package_truher/*
-Proceed (Y/n)? 
-  Successfully uninstalled example_package_truher-0.0.dev20241118
+python3 -m pip uninstall example_package_truher
 ```
 
-the tests fail now.
-
-now try a different bound: `example_package_truher >= 0.0.dev2023`
-
-and...
-
-```
-(.venv) joel@joel:~/FRC/TRUHER/python_thing_2$ python3 -m pip install -r requirements1.txt 
-Looking in indexes: https://test.pypi.org/simple/, https://pypi.org/simple
-Collecting example_package_truher>=0.0.dev2023 (from -r requirements1.txt (line 3))
-  Using cached https://test-files.pythonhosted.org/packages/94/79/738a893f5295400ae27e45ea2dfa4c6b79dcd5b7a764c454f7db9a985ebd/example_package_truher-0.0.dev20241118-py3-none-any.whl.metadata (3.8 kB)
-Using cached https://test-files.pythonhosted.org/packages/94/79/738a893f5295400ae27e45ea2dfa4c6b79dcd5b7a764c454f7db9a985ebd/example_package_truher-0.0.dev20241118-py3-none-any.whl (4.2 kB)
-Installing collected packages: example_package_truher
-Successfully installed example_package_truher-0.0.dev20241118
-```
-
-viola!  it picks the most recent one.
-
-note that we're still using the "dev" type wrong -- it means a version which is *earlier* than the corresponding release version,
-i.e. it sorts ahead of 0.0 itself (so asking for >= 0.0 fails).
-
-it seems like what we really want is "post" 
+Change the requirements file (or make a new one, e.g. requirements2.txt), and repeat the above install.
